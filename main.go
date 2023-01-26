@@ -6,6 +6,7 @@ import (
 
 	"github.com/stevenwilkin/swaps/binance"
 	"github.com/stevenwilkin/swaps/bybit"
+	"github.com/stevenwilkin/swaps/deribit"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -14,15 +15,18 @@ import (
 var (
 	b      = &binance.Binance{}
 	by     = &bybit.Bybit{}
+	d      = &deribit.Deribit{}
 	margin = lipgloss.NewStyle().Margin(1, 2, 0, 2)
 )
 
 type spotMsg float64
 type bybitMsg float64
+type deribitMsg float64
 
 type model struct {
-	spot  float64
-	bybit float64
+	spot    float64
+	bybit   float64
+	deribit float64
 }
 
 func (m model) Init() tea.Cmd {
@@ -40,17 +44,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.spot = float64(msg)
 	case bybitMsg:
 		m.bybit = float64(msg)
+	case deribitMsg:
+		m.deribit = float64(msg)
 	}
 
 	return m, nil
 }
 
 func (m model) View() string {
-	spot := fmt.Sprintf("Spot:  %7.2f", m.spot)
-	bybit := fmt.Sprintf("Bybit: %7.2f", m.bybit)
+	spot := fmt.Sprintf("Spot:    %7.2f", m.spot)
+	bybit := fmt.Sprintf("Bybit:   %7.2f", m.bybit)
+	deribit := fmt.Sprintf("Deribit: %7.2f", m.deribit)
 
 	return margin.Render(fmt.Sprintf(
-		"%s\n%s", spot, bybit))
+		"%s\n%s\n%s", spot, bybit, deribit))
 }
 
 func main() {
@@ -66,6 +73,12 @@ func main() {
 	go func() {
 		for price := range by.Price() {
 			p.Send(bybitMsg(price))
+		}
+	}()
+
+	go func() {
+		for price := range d.Price() {
+			p.Send(deribitMsg(price))
 		}
 	}()
 
