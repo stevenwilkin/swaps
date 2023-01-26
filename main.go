@@ -51,10 +51,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func delta(spot, perp float64) string {
+	if perp == 0 || spot == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf("%6.2f", perp-spot)
+}
+
 func (m model) View() string {
-	spot := fmt.Sprintf("Spot:    %7.2f", m.spot)
-	bybit := fmt.Sprintf("Bybit:   %7.2f", m.bybit)
-	deribit := fmt.Sprintf("Deribit: %7.2f", m.deribit)
+	spot := fmt.Sprintf("Spot:    %8.2f", m.spot)
+	bybit := fmt.Sprintf("Bybit:   %8.2f %s", m.bybit, delta(m.spot, m.bybit))
+	deribit := fmt.Sprintf("Deribit: %8.2f %s", m.deribit, delta(m.spot, m.deribit))
 
 	return margin.Render(fmt.Sprintf(
 		"%s\n%s\n%s", spot, bybit, deribit))
