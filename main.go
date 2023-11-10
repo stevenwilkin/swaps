@@ -76,18 +76,21 @@ func main() {
 		for price := range b.Price() {
 			p.Send(spotMsg(price))
 		}
+		os.Exit(1)
 	}()
 
 	go func() {
 		for price := range by.Price() {
 			p.Send(bybitMsg(price))
 		}
+		os.Exit(1)
 	}()
 
 	go func() {
 		for price := range d.Price() {
 			p.Send(deribitMsg(price))
 		}
+		os.Exit(1)
 	}()
 
 	if err := p.Start(); err != nil {
