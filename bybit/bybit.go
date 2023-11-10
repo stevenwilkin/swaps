@@ -3,6 +3,7 @@ package bybit
 import (
 	"encoding/json"
 	"net/url"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -44,6 +45,18 @@ func (b *Bybit) subscribe(channels []string) (*websocket.Conn, error) {
 	if err = c.WriteJSON(command); err != nil {
 		return &websocket.Conn{}, err
 	}
+
+	go func() {
+		ticker := time.NewTicker(10 * time.Second)
+		heartbeat := wsCommand{Op: "ping"}
+
+		for {
+			if err = c.WriteJSON(heartbeat); err != nil {
+				return
+			}
+			<-ticker.C
+		}
+	}()
 
 	return c, nil
 }
