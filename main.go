@@ -10,11 +10,12 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 var (
 	b      = &binance.Binance{}
-	by     = &bybit.Bybit{}
+	by     = bybit.NewBybitFromEnv()
 	d      = &deribit.Deribit{}
 	margin = lipgloss.NewStyle().Margin(1, 2, 0, 2)
 )

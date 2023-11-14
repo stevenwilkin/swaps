@@ -1,8 +1,14 @@
 package bybit
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/url"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -31,10 +37,23 @@ func (b *Bybit) websocketHostname() string {
 }
 
 func (b *Bybit) subscribe(channels []string) (*websocket.Conn, error) {
+	expires := (time.Now().UnixNano() / int64(time.Millisecond)) + 10000
+
+	signatureInput := fmt.Sprintf("GET/realtime%d", expires)
+	h := hmac.New(sha256.New, []byte(b.ApiSecret))
+	io.WriteString(h, signatureInput)
+	signature := fmt.Sprintf("%x", h.Sum(nil))
+
+	v := url.Values{}
+	v.Set("api_key", b.ApiKey)
+	v.Set("expires", strconv.FormatInt(expires, 10))
+	v.Set("signature", signature)
+
 	u := url.URL{
-		Scheme: "wss",
-		Host:   b.websocketHostname(),
-		Path:   "/realtime"}
+		Scheme:   "wss",
+		Host:     b.websocketHostname(),
+		Path:     "/realtime",
+		RawQuery: v.Encode()}
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
@@ -96,4 +115,10 @@ func (b *Bybit) Price() chan float64 {
 	}()
 
 	return ch
+}
+
+func NewBybitFromEnv() *Bybit {
+	return &Bybit{
+		ApiKey:    os.Getenv("BYBIT_API_KEY"),
+		ApiSecret: os.Getenv("BYBIT_API_SECRET")}
 }
