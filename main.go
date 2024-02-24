@@ -70,7 +70,7 @@ func (m model) View() string {
 
 func main() {
 	m := model{}
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithFPS(10))
 
 	go func() {
 		for price := range b.Price() {
