@@ -60,9 +60,9 @@ func delta(spot, perp float64) string {
 }
 
 func (m model) View() string {
-	spot := fmt.Sprintf("Spot:    %8.2f", m.spot)
-	bybit := fmt.Sprintf("Bybit:   %8.2f %s", m.bybit, delta(m.spot, m.bybit))
-	deribit := fmt.Sprintf("Deribit: %8.2f %s", m.deribit, delta(m.spot, m.deribit))
+	spot := fmt.Sprintf("Spot:    %9.2f", m.spot)
+	bybit := fmt.Sprintf("Bybit:   %9.2f %s", m.bybit, delta(m.spot, m.bybit))
+	deribit := fmt.Sprintf("Deribit: %9.2f %s", m.deribit, delta(m.spot, m.deribit))
 
 	return margin.Render(fmt.Sprintf(
 		"%s\n%s\n%s", spot, bybit, deribit))
