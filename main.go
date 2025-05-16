@@ -3,53 +3,22 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/stevenwilkin/swaps/binance"
 	"github.com/stevenwilkin/swaps/bybit"
 	"github.com/stevenwilkin/swaps/deribit"
-
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 var (
-	b      = &binance.Binance{}
-	by     = &bybit.Bybit{}
-	d      = &deribit.Deribit{}
-	margin = lipgloss.NewStyle().Margin(1, 2, 0, 2)
+	b  = &binance.Binance{}
+	by = &bybit.Bybit{}
+	d  = &deribit.Deribit{}
+
+	spot     float64
+	sBybit   float64
+	sDeribit float64
 )
-
-type spotMsg float64
-type bybitMsg float64
-type deribitMsg float64
-
-type model struct {
-	spot    float64
-	bybit   float64
-	deribit float64
-}
-
-func (m model) Init() tea.Cmd {
-	return nil
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyCtrlC:
-			return m, tea.Quit
-		}
-	case spotMsg:
-		m.spot = float64(msg)
-	case bybitMsg:
-		m.bybit = float64(msg)
-	case deribitMsg:
-		m.deribit = float64(msg)
-	}
-
-	return m, nil
-}
 
 func delta(spot, perp float64) string {
 	if perp == 0 || spot == 0 {
@@ -59,42 +28,37 @@ func delta(spot, perp float64) string {
 	return fmt.Sprintf("%6.2f", perp-spot)
 }
 
-func (m model) View() string {
-	spot := fmt.Sprintf("Spot:    %9.2f", m.spot)
-	bybit := fmt.Sprintf("Bybit:   %9.2f %s", m.bybit, delta(m.spot, m.bybit))
-	deribit := fmt.Sprintf("Deribit: %9.2f %s", m.deribit, delta(m.spot, m.deribit))
+func display() {
+	fmt.Println("\033[2J\033[H\033[?25l") // clear screen, move cursor to top of screen, hide cursor
 
-	return margin.Render(fmt.Sprintf(
-		"%s\n%s\n%s", spot, bybit, deribit))
+	fmt.Printf("  Spot:    %9.2f\n", spot)
+	fmt.Printf("  Bybit:   %9.2f %s\n", sBybit, delta(spot, sBybit))
+	fmt.Printf("  Deribit: %9.2f %s\n", sDeribit, delta(spot, sDeribit))
 }
 
 func main() {
-	m := model{}
-	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithFPS(10))
-
 	go func() {
-		for price := range b.Price() {
-			p.Send(spotMsg(price))
+		for spot = range b.Price() {
 		}
 		os.Exit(1)
 	}()
 
 	go func() {
-		for price := range by.Price() {
-			p.Send(bybitMsg(price))
+		for sBybit = range by.Price() {
 		}
 		os.Exit(1)
 	}()
 
 	go func() {
-		for price := range d.Price() {
-			p.Send(deribitMsg(price))
+		for sDeribit = range d.Price() {
 		}
 		os.Exit(1)
 	}()
 
-	if err := p.Start(); err != nil {
-		fmt.Printf("Error: %v", err)
-		os.Exit(1)
+	t := time.NewTicker(100 * time.Millisecond)
+
+	for {
+		display()
+		<-t.C
 	}
 }
