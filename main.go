@@ -36,24 +36,27 @@ func display() {
 	fmt.Printf("  Deribit: %9.2f %s\n", sDeribit, delta(spot, sDeribit))
 }
 
+func process[T any](f func() chan T, p func(x T)) {
+	go func() {
+		for result := range f() {
+			p(result)
+		}
+		os.Exit(1)
+	}()
+}
+
 func main() {
-	go func() {
-		for spot = range b.Price() {
-		}
-		os.Exit(1)
-	}()
+	process(b.Price, func(x float64) {
+		spot = x
+	})
 
-	go func() {
-		for sBybit = range by.Price() {
-		}
-		os.Exit(1)
-	}()
+	process(by.Price, func(x float64) {
+		sBybit = x
+	})
 
-	go func() {
-		for sDeribit = range d.Price() {
-		}
-		os.Exit(1)
-	}()
+	process(d.Price, func(x float64) {
+		sDeribit = x
+	})
 
 	t := time.NewTicker(100 * time.Millisecond)
 
