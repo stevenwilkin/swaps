@@ -2,10 +2,7 @@ package bybit
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
 	"net/url"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -64,7 +61,7 @@ func (b *Bybit) subscribe(channels []string) (*websocket.Conn, error) {
 	return c, nil
 }
 
-func (b *Bybit) _Price() chan float64 {
+func (b *Bybit) Price() chan float64 {
 	ch := make(chan float64)
 	tradeTopic := "trade.BTCUSD"
 
@@ -95,64 +92,6 @@ func (b *Bybit) _Price() chan float64 {
 			}
 
 			ch <- ticker.Data[0].Price
-		}
-	}()
-
-	return ch
-}
-
-func (b *Bybit) getNoAuth(path string, params url.Values, result interface{}) error {
-	u := url.URL{
-		Scheme:   "https",
-		Host:     b.hostname(),
-		Path:     path,
-		RawQuery: params.Encode()}
-
-	resp, err := http.Get(u.String())
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	json.Unmarshal(body, result)
-
-	return nil
-}
-
-func (b *Bybit) GetPrice() float64 {
-	v := url.Values{
-		"category": {"inverse"},
-		"symbol":   {"BTCUSD"}}
-
-	var response tickersResponse
-	err := b.getNoAuth("/v5/market/tickers", v, &response)
-
-	if err != nil {
-		return 0
-	}
-
-	if len(response.Result.List) != 1 {
-		return 0
-	}
-
-	price, _ := strconv.ParseFloat(response.Result.List[0].LastPrice, 64)
-	return price
-}
-
-func (b *Bybit) Price() chan float64 {
-	ch := make(chan float64)
-
-	go func() {
-		t := time.NewTicker(1 * time.Second)
-
-		for {
-			ch <- b.GetPrice()
-			<-t.C
 		}
 	}()
 

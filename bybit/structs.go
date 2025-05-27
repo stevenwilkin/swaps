@@ -11,11 +11,3 @@ type tickerMessage struct {
 		Price float64 `json:"price"`
 	} `json:"data"`
 }
-
-type tickersResponse struct {
-	Result struct {
-		List []struct {
-			LastPrice string `json:"lastPrice"`
-		} `json:"list"`
-	} `json:"result"`
-}
