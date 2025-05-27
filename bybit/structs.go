@@ -8,6 +8,6 @@ type wsCommand struct {
 type tickerMessage struct {
 	Topic string `json:"topic"`
 	Data  []struct {
-		Price float64 `json:"price"`
+		Price string `json:"P"`
 	} `json:"data"`
 }

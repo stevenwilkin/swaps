@@ -3,6 +3,7 @@ package bybit
 import (
 	"encoding/json"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -34,7 +35,7 @@ func (b *Bybit) subscribe(channels []string) (*websocket.Conn, error) {
 	u := url.URL{
 		Scheme: "wss",
 		Host:   b.websocketHostname(),
-		Path:   "/realtime"}
+		Path:   "/v5/public/inverse"}
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
@@ -63,7 +64,7 @@ func (b *Bybit) subscribe(channels []string) (*websocket.Conn, error) {
 
 func (b *Bybit) Price() chan float64 {
 	ch := make(chan float64)
-	tradeTopic := "trade.BTCUSD"
+	tradeTopic := "publicTrade.BTCUSD"
 
 	c, err := b.subscribe([]string{tradeTopic})
 	if err != nil {
@@ -91,7 +92,8 @@ func (b *Bybit) Price() chan float64 {
 				continue
 			}
 
-			ch <- ticker.Data[0].Price
+			price, _ := strconv.ParseFloat(ticker.Data[0].Price, 64)
+			ch <- price
 		}
 	}()
 
