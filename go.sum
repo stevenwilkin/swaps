@@ -2,3 +2,5 @@ github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWm
 github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/stevenwilkin/carry v0.0.0-20250523094500-839edeefbf44 h1:BUGTCsl0c0LY0vqKfFHUke+bjuOjr4Y7jphVxoT+eig=
 github.com/stevenwilkin/carry v0.0.0-20250523094500-839edeefbf44/go.mod h1:cgtIuEStnTmlmpS2LD/7BJnoOVQ58UZ2A/PsewiAwxs=
+github.com/stevenwilkin/carry v0.0.0-20250529114410-ecbd4d1b75fc h1:Er65WKBGOFWUzrUCNuzEGLJ8mQhCiKx0vpU1byPHQWY=
+github.com/stevenwilkin/carry v0.0.0-20250529114410-ecbd4d1b75fc/go.mod h1:cgtIuEStnTmlmpS2LD/7BJnoOVQ58UZ2A/PsewiAwxs=
