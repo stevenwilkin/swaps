@@ -49,17 +49,9 @@ func exitFailed() {
 }
 
 func main() {
-	h.Add(feed.NewFeed(b.Price, func(x float64) {
-		spot = x
-	}))
-
-	h.Add(feed.NewFeed(by.Price, func(x float64) {
-		sBybit = x
-	}))
-
-	h.Add(feed.NewFeed(d.Price, func(x float64) {
-		sDeribit = x
-	}))
+	h.Add(feed.NewFeed(b.Price, feed.SetValue(&spot)))
+	h.Add(feed.NewFeed(by.Price, feed.SetValue(&sBybit)))
+	h.Add(feed.NewFeed(d.Price, feed.SetValue(&sDeribit)))
 
 	t := time.NewTicker(100 * time.Millisecond)
 
